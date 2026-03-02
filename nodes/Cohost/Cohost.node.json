@@ -1,0 +1,19 @@
+{
+  "node": "n8n-nodes-cohost.cohost",
+  "nodeVersion": "1.0",
+  "codexVersion": "1.0",
+  "categories": ["Marketing & Growth"],
+  "resources": {
+    "primaryDocumentation": [
+      {
+        "url": "https://docs.cohost.vip/integrations/n8n"
+      }
+    ],
+    "credentialDocumentation": [
+      {
+        "url": "https://docs.cohost.vip/api/authentication"
+      }
+    ]
+  },
+  "alias": ["cohost", "events", "tickets", "ticketing"]
+}

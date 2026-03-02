@@ -1,0 +1,47 @@
+{
+  "name": "n8n-nodes-cohost",
+  "version": "0.1.0",
+  "description": "n8n community node for the Cohost event management platform",
+  "keywords": [
+    "n8n-community-node-package"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/cohostapp/n8n-nodes-cohost",
+  "author": {
+    "name": "Cohost",
+    "email": "dev@cohost.vip"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cohostapp/n8n-nodes-cohost.git"
+  },
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc && npm run copy-icons",
+    "copy-icons": "cp -r nodes/**/*.svg dist/nodes/ 2>/dev/null || true",
+    "dev": "tsc --watch",
+    "lint": "eslint nodes credentials --ext .ts",
+    "prepublishOnly": "npm run build"
+  },
+  "files": [
+    "dist"
+  ],
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "credentials": [
+      "dist/credentials/CohostApi.credentials.js",
+      "dist/credentials/CohostOAuth2Api.credentials.js"
+    ],
+    "nodes": [
+      "dist/nodes/Cohost/Cohost.node.js"
+    ]
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.35",
+    "n8n-workflow": "^1.120.9",
+    "typescript": "^5.9.3"
+  },
+  "peerDependencies": {
+    "n8n-workflow": "*"
+  }
+}
