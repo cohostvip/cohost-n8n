@@ -240,12 +240,13 @@ export const eventFields: INodeProperties[] = [
         name: 'status',
         type: 'options',
         options: [
+          { name: '-- No Change --', value: '' },
           { name: 'Cancelled', value: 'cancelled' },
           { name: 'Completed', value: 'completed' },
           { name: 'Draft', value: 'draft' },
           { name: 'Live', value: 'live' },
         ],
-        default: 'draft',
+        default: '',
         description: 'The status of the event',
       },
       {

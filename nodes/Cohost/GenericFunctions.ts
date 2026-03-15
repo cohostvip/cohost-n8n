@@ -1,4 +1,5 @@
 import type { IExecuteFunctions, IHttpRequestMethods, IRequestOptions } from 'n8n-workflow';
+import { NodeOperationError } from 'n8n-workflow';
 
 export async function cohostApiRequest(
   this: IExecuteFunctions,
@@ -27,7 +28,9 @@ export async function cohostApiRequest(
   let response: any;
 
   if (authentication === 'oAuth2') {
-    options.uri = `https://api.cohost.vip/v1${endpoint}`;
+    const credentials = await this.getCredentials('cohostOAuth2Api');
+    const baseUrl = ((credentials.baseUrl as string) || 'https://api.cohost.vip').replace(/\/+$/, '');
+    options.uri = `${baseUrl}/v1${endpoint}`;
     response = await this.helpers.httpRequestWithAuthentication.call(
       this,
       'cohostOAuth2Api',
@@ -43,7 +46,7 @@ export async function cohostApiRequest(
   } else {
     // apiKey authentication
     const credentials = await this.getCredentials('cohostApi');
-    const baseUrl = (credentials.baseUrl as string) || 'https://api.cohost.vip';
+    const baseUrl = ((credentials.baseUrl as string) || 'https://api.cohost.vip').replace(/\/+$/, '');
     const apiKey = credentials.apiKey as string;
 
     options.uri = `${baseUrl}/v1${endpoint}`;
@@ -57,7 +60,16 @@ export async function cohostApiRequest(
 
   // Unwrap the { status: "ok", data: ... } envelope
   if (response && typeof response === 'object' && 'data' in response) {
+    // Check for API-level errors before returning
+    if (response.status === 'error') {
+      throw new NodeOperationError(this.getNode(), response.message || 'API returned an error');
+    }
     return response.data;
+  }
+
+  // Check for top-level API error responses without a data field
+  if (response?.status === 'error') {
+    throw new NodeOperationError(this.getNode(), response.message || 'API returned an error');
   }
 
   return response;
