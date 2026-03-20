@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-cohost",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "n8n community node for the Cohost event management platform",
   "keywords": [
     "n8n",
@@ -29,7 +29,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc && npm run copy-icons",
-    "copy-icons": "cp -r nodes/**/*.png dist/nodes/ 2>/dev/null || true",
+    "copy-icons": "cp nodes/Cohost/*.png dist/nodes/Cohost/ && cp nodes/Cohost/*.node.json dist/nodes/Cohost/",
     "dev": "tsc --watch",
     "lint": "eslint nodes credentials --ext .ts",
     "prepublishOnly": "npm run build",
