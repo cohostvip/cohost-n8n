@@ -9,24 +9,12 @@ import { NodeOperationError } from 'n8n-workflow';
 
 import { cohostApiRequest, removeEmpty } from './GenericFunctions';
 import {
-  analyticsFields,
-  analyticsOperations,
   attendeeFields,
   attendeeOperations,
-  channelFields,
-  channelOperations,
   couponFields,
   couponOperations,
   eventFields,
   eventOperations,
-  instanceFields,
-  instanceOperations,
-  purchaseGroupFields,
-  purchaseGroupOperations,
-  seriesFields,
-  seriesOperations,
-  tableFields,
-  tableOperations,
   ticketFields,
   ticketOperations,
 } from './descriptions';
@@ -35,11 +23,11 @@ export class Cohost implements INodeType {
   description: INodeTypeDescription = {
     displayName: 'Cohost',
     name: 'cohost',
-    icon: 'file:cohost.svg',
+    icon: 'file:cohost.png',
     group: ['transform'],
     version: 1,
     subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
-    description: 'Manage events, tickets, attendees, and analytics on the Cohost event management platform',
+    description: 'Manage events, tickets, attendees, and coupons on the Cohost event management platform',
     defaults: {
       name: 'Cohost',
     },
@@ -93,16 +81,8 @@ export class Cohost implements INodeType {
         noDataExpression: true,
         options: [
           {
-            name: 'Analytics',
-            value: 'analytics',
-          },
-          {
             name: 'Attendee',
             value: 'attendee',
-          },
-          {
-            name: 'Channel',
-            value: 'channel',
           },
           {
             name: 'Coupon',
@@ -111,22 +91,6 @@ export class Cohost implements INodeType {
           {
             name: 'Event',
             value: 'event',
-          },
-          {
-            name: 'Event Instance',
-            value: 'instance',
-          },
-          {
-            name: 'Purchase Group',
-            value: 'purchaseGroup',
-          },
-          {
-            name: 'Series',
-            value: 'series',
-          },
-          {
-            name: 'Table',
-            value: 'table',
           },
           {
             name: 'Ticket',
@@ -138,27 +102,15 @@ export class Cohost implements INodeType {
       },
 
       // ─── Operations ───────────────────────────────────────────────────────
-      ...analyticsOperations,
       ...attendeeOperations,
-      ...channelOperations,
       ...couponOperations,
       ...eventOperations,
-      ...instanceOperations,
-      ...purchaseGroupOperations,
-      ...seriesOperations,
-      ...tableOperations,
       ...ticketOperations,
 
       // ─── Fields ───────────────────────────────────────────────────────────
-      ...analyticsFields,
       ...attendeeFields,
-      ...channelFields,
       ...couponFields,
       ...eventFields,
-      ...instanceFields,
-      ...purchaseGroupFields,
-      ...seriesFields,
-      ...tableFields,
       ...ticketFields,
     ],
   };
@@ -209,19 +161,6 @@ export class Cohost implements INodeType {
             `/events/${eventId}/clone`,
             Object.keys(overrides).length > 0 ? removeEmpty(overrides) : {},
           );
-        } else if (operation === 'setLocation') {
-          const eventId = this.getNodeParameter('eventId', i) as string;
-          const locationName = this.getNodeParameter('locationName', i) as string;
-          const additionalFields = this.getNodeParameter('additionalFields', i) as Record<string, any>;
-          responseData = await cohostApiRequest.call(
-            this,
-            'POST',
-            `/events/${eventId}/set-location`,
-            removeEmpty({ name: locationName, ...additionalFields }),
-          );
-        } else if (operation === 'getBarcodes') {
-          const eventId = this.getNodeParameter('eventId', i) as string;
-          responseData = await cohostApiRequest.call(this, 'GET', `/events/${eventId}/barcodes`);
         }
       }
 
@@ -269,239 +208,6 @@ export class Cohost implements INodeType {
             'DELETE',
             `/events/${eventId}/attendees`,
             { attendeeIds },
-          );
-        }
-      }
-
-      // ─── Series ────────────────────────────────────────────────────────
-      else if (resource === 'series') {
-        if (operation === 'create') {
-          const name = this.getNodeParameter('name', i) as string;
-          const additionalFields = this.getNodeParameter('additionalFields', i) as Record<string, any>;
-          responseData = await cohostApiRequest.call(
-            this,
-            'POST',
-            '/events/series',
-            removeEmpty({ name, ...additionalFields }),
-          );
-        } else if (operation === 'createInstances') {
-          const seriesId = this.getNodeParameter('seriesId', i) as string;
-          const instancesJson = this.getNodeParameter('instancesJson', i) as string;
-          let instances: unknown[];
-          try {
-            instances = JSON.parse(instancesJson) as unknown[];
-          } catch {
-            throw new NodeOperationError(
-              this.getNode(),
-              'Instances (JSON) must be a valid JSON array.',
-              { itemIndex: i },
-            );
-          }
-          responseData = await cohostApiRequest.call(
-            this,
-            'POST',
-            `/events/series/${seriesId}/instances`,
-            { instances },
-          );
-        } else if (operation === 'getInstances') {
-          const seriesId = this.getNodeParameter('seriesId', i) as string;
-          responseData = await cohostApiRequest.call(this, 'GET', `/events/series/${seriesId}/instances`);
-        } else if (operation === 'update') {
-          const seriesId = this.getNodeParameter('seriesId', i) as string;
-          const updateFields = this.getNodeParameter('updateFields', i) as Record<string, any>;
-          responseData = await cohostApiRequest.call(
-            this,
-            'PATCH',
-            `/events/series/${seriesId}`,
-            removeEmpty(updateFields),
-          );
-        }
-      }
-
-      // ─── Instance ──────────────────────────────────────────────────────
-      else if (resource === 'instance') {
-        if (operation === 'getMany') {
-          const eventId = this.getNodeParameter('eventId', i) as string;
-          responseData = await cohostApiRequest.call(this, 'GET', `/events/${eventId}/instances`);
-        } else if (operation === 'create') {
-          const eventId = this.getNodeParameter('eventId', i) as string;
-          const startDate = this.getNodeParameter('startDate', i) as string;
-          const additionalFields = this.getNodeParameter('additionalFields', i) as Record<string, any>;
-          responseData = await cohostApiRequest.call(
-            this,
-            'POST',
-            `/events/${eventId}/instances`,
-            removeEmpty({ startDate, ...additionalFields }),
-          );
-        } else if (operation === 'get') {
-          const eventId = this.getNodeParameter('eventId', i) as string;
-          const instanceId = this.getNodeParameter('instanceId', i) as string;
-          responseData = await cohostApiRequest.call(
-            this,
-            'GET',
-            `/events/${eventId}/instances/${instanceId}`,
-          );
-        } else if (operation === 'update') {
-          const eventId = this.getNodeParameter('eventId', i) as string;
-          const instanceId = this.getNodeParameter('instanceId', i) as string;
-          const updateFields = this.getNodeParameter('updateFields', i) as Record<string, any>;
-          responseData = await cohostApiRequest.call(
-            this,
-            'PATCH',
-            `/events/${eventId}/instances/${instanceId}`,
-            removeEmpty(updateFields),
-          );
-        } else if (operation === 'delete') {
-          const eventId = this.getNodeParameter('eventId', i) as string;
-          const instanceId = this.getNodeParameter('instanceId', i) as string;
-          responseData = await cohostApiRequest.call(
-            this,
-            'DELETE',
-            `/events/${eventId}/instances/${instanceId}`,
-          );
-        } else if (operation === 'bulkCreate') {
-          const eventId = this.getNodeParameter('eventId', i) as string;
-          const instancesJson = this.getNodeParameter('instancesJson', i) as string;
-          let instances: unknown[];
-          try {
-            instances = JSON.parse(instancesJson) as unknown[];
-          } catch {
-            throw new NodeOperationError(
-              this.getNode(),
-              'Instances (JSON) must be a valid JSON array.',
-              { itemIndex: i },
-            );
-          }
-          responseData = await cohostApiRequest.call(
-            this,
-            'POST',
-            `/events/${eventId}/instances/bulk`,
-            { instances },
-          );
-        }
-      }
-
-      // ─── Table ─────────────────────────────────────────────────────────
-      else if (resource === 'table') {
-        if (operation === 'getMany') {
-          const eventId = this.getNodeParameter('eventId', i) as string;
-          responseData = await cohostApiRequest.call(this, 'GET', `/events/${eventId}/tables`);
-        } else if (operation === 'create') {
-          const eventId = this.getNodeParameter('eventId', i) as string;
-          const name = this.getNodeParameter('name', i) as string;
-          const capacity = this.getNodeParameter('capacity', i) as number;
-          const additionalFields = this.getNodeParameter('additionalFields', i) as Record<string, any>;
-          responseData = await cohostApiRequest.call(
-            this,
-            'POST',
-            `/events/${eventId}/tables`,
-            { table: removeEmpty({ name, capacity, ...additionalFields }) },
-          );
-        } else if (operation === 'update') {
-          const eventId = this.getNodeParameter('eventId', i) as string;
-          const tableId = this.getNodeParameter('tableId', i) as string;
-          const updateFields = this.getNodeParameter('updateFields', i) as Record<string, any>;
-          responseData = await cohostApiRequest.call(
-            this,
-            'PATCH',
-            `/events/${eventId}/tables/${tableId}`,
-            { table: removeEmpty(updateFields) },
-          );
-        } else if (operation === 'delete') {
-          const eventId = this.getNodeParameter('eventId', i) as string;
-          const tableId = this.getNodeParameter('tableId', i) as string;
-          responseData = await cohostApiRequest.call(
-            this,
-            'DELETE',
-            `/events/${eventId}/tables/${tableId}`,
-          );
-        }
-      }
-
-      // ─── Channel ───────────────────────────────────────────────────────
-      else if (resource === 'channel') {
-        if (operation === 'getMany') {
-          const eventId = this.getNodeParameter('eventId', i) as string;
-          responseData = await cohostApiRequest.call(this, 'GET', `/events/${eventId}/channels`);
-        } else if (operation === 'create') {
-          const eventId = this.getNodeParameter('eventId', i) as string;
-          const channelType = this.getNodeParameter('channelType', i) as string;
-          const additionalFields = this.getNodeParameter('additionalFields', i) as Record<string, any>;
-
-          const body: Record<string, any> = { type: channelType };
-          if (additionalFields.configJson) {
-            try {
-              body.config = JSON.parse(additionalFields.configJson as string) as Record<string, unknown>;
-            } catch {
-              throw new NodeOperationError(
-                this.getNode(),
-                'Config (JSON) must be a valid JSON object.',
-                { itemIndex: i },
-              );
-            }
-          }
-
-          responseData = await cohostApiRequest.call(
-            this,
-            'POST',
-            `/events/${eventId}/channels`,
-            body,
-          );
-        } else if (operation === 'delete') {
-          const eventId = this.getNodeParameter('eventId', i) as string;
-          const channelId = this.getNodeParameter('channelId', i) as string;
-          responseData = await cohostApiRequest.call(
-            this,
-            'DELETE',
-            `/events/${eventId}/channels/${channelId}`,
-          );
-        }
-      }
-
-      // ─── Analytics ─────────────────────────────────────────────────────
-      else if (resource === 'analytics') {
-        if (operation === 'getStats') {
-          const eventId = this.getNodeParameter('eventId', i) as string;
-          responseData = await cohostApiRequest.call(this, 'GET', `/events/${eventId}/stats`);
-        } else if (operation === 'export') {
-          const eventId = this.getNodeParameter('eventId', i) as string;
-          const format = this.getNodeParameter('format', i) as string;
-          responseData = await cohostApiRequest.call(
-            this,
-            'GET',
-            `/events/${eventId}/export`,
-            {},
-            { format },
-          );
-        }
-      }
-
-      // ─── Purchase Group ────────────────────────────────────────────────
-      else if (resource === 'purchaseGroup') {
-        if (operation === 'getMany') {
-          const eventId = this.getNodeParameter('eventId', i) as string;
-          responseData = await cohostApiRequest.call(
-            this,
-            'GET',
-            `/events/${eventId}/purchase-groups`,
-          );
-        } else if (operation === 'update') {
-          const eventId = this.getNodeParameter('eventId', i) as string;
-          const purchaseGroupId = this.getNodeParameter('purchaseGroupId', i) as string;
-          const updateFields = this.getNodeParameter('updateFields', i) as Record<string, any>;
-          responseData = await cohostApiRequest.call(
-            this,
-            'PATCH',
-            `/events/${eventId}/purchase-groups/${purchaseGroupId}`,
-            removeEmpty(updateFields),
-          );
-        } else if (operation === 'delete') {
-          const eventId = this.getNodeParameter('eventId', i) as string;
-          const purchaseGroupId = this.getNodeParameter('purchaseGroupId', i) as string;
-          responseData = await cohostApiRequest.call(
-            this,
-            'DELETE',
-            `/events/${eventId}/purchase-groups/${purchaseGroupId}`,
           );
         }
       }

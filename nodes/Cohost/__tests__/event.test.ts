@@ -141,43 +141,4 @@ describe('Event resource', () => {
     });
   });
 
-  describe('setLocation', () => {
-    it('sends POST /events/:id/set-location with location data', async () => {
-      const { executeFunctions, capturedCalls } = createMockExecuteFunctions({
-        authentication: 'apiKey',
-        resource: 'event',
-        operation: 'setLocation',
-        eventId: 'evt-123',
-        locationName: 'Madison Square Garden',
-        additionalFields: { city: 'New York', state: 'NY', country: 'US' },
-      });
-
-      await node.execute.call(executeFunctions);
-
-      expect(capturedCalls[0].method).toBe('POST');
-      expect(capturedCalls[0].endpoint).toBe('/events/evt-123/set-location');
-      expect(capturedCalls[0].body).toEqual({
-        name: 'Madison Square Garden',
-        city: 'New York',
-        state: 'NY',
-        country: 'US',
-      });
-    });
-  });
-
-  describe('getBarcodes', () => {
-    it('sends GET /events/:id/barcodes', async () => {
-      const { executeFunctions, capturedCalls } = createMockExecuteFunctions({
-        authentication: 'apiKey',
-        resource: 'event',
-        operation: 'getBarcodes',
-        eventId: 'evt-123',
-      }, []);
-
-      await node.execute.call(executeFunctions);
-
-      expect(capturedCalls[0].method).toBe('GET');
-      expect(capturedCalls[0].endpoint).toBe('/events/evt-123/barcodes');
-    });
-  });
 });

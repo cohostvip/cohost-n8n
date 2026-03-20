@@ -1,4 +1,4 @@
-import type { IExecuteFunctions, IPollFunctions, IHttpRequestMethods, IRequestOptions } from 'n8n-workflow';
+import type { IExecuteFunctions, IHookFunctions, IWebhookFunctions, IPollFunctions, IHttpRequestMethods, IRequestOptions } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 
 export async function cohostApiRequest(
@@ -86,11 +86,11 @@ export function removeEmpty(obj: Record<string, any>): Record<string, any> {
 }
 
 /**
- * API request helper for polling trigger nodes (IPollFunctions context).
+ * API request helper for webhook trigger nodes (IHookFunctions / IWebhookFunctions context).
  * Always uses API Key authentication.
  */
-export async function cohostPollApiRequest(
-  this: IPollFunctions,
+export async function cohostWebhookApiRequest(
+  this: IHookFunctions | IWebhookFunctions,
   method: IHttpRequestMethods,
   endpoint: string,
   body: object = {},

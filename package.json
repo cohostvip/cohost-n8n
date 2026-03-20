@@ -11,7 +11,7 @@
     "events",
     "attendees",
     "registration",
-    "analytics"
+    "webhooks"
   ],
   "license": "MIT",
   "homepage": "https://github.com/cohostapp/n8n-nodes-cohost",
@@ -29,7 +29,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc && npm run copy-icons",
-    "copy-icons": "cp -r nodes/**/*.svg dist/nodes/ 2>/dev/null || true",
+    "copy-icons": "cp -r nodes/**/*.png dist/nodes/ 2>/dev/null || true",
     "dev": "tsc --watch",
     "lint": "eslint nodes credentials --ext .ts",
     "prepublishOnly": "npm run build",

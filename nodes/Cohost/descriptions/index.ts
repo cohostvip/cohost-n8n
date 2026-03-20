@@ -1,10 +1,4 @@
-export { analyticsFields, analyticsOperations } from './AnalyticsDescription';
 export { attendeeFields, attendeeOperations } from './AttendeeDescription';
-export { channelFields, channelOperations } from './ChannelDescription';
 export { couponFields, couponOperations } from './CouponDescription';
 export { eventFields, eventOperations } from './EventDescription';
-export { instanceFields, instanceOperations } from './InstanceDescription';
-export { purchaseGroupFields, purchaseGroupOperations } from './PurchaseGroupDescription';
-export { seriesFields, seriesOperations } from './SeriesDescription';
-export { tableFields, tableOperations } from './TableDescription';
 export { ticketFields, ticketOperations } from './TicketDescription';

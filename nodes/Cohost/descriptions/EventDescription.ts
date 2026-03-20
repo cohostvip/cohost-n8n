@@ -37,22 +37,10 @@ export const eventOperations: INodeProperties[] = [
         action: 'Get an event',
       },
       {
-        name: 'Get Barcodes',
-        value: 'getBarcodes',
-        description: 'Get barcodes for an event',
-        action: 'Get event barcodes',
-      },
-      {
         name: 'Get Many',
         value: 'getMany',
         description: 'Get a list of events',
         action: 'Get many events',
-      },
-      {
-        name: 'Set Location',
-        value: 'setLocation',
-        description: 'Set the location of an event',
-        action: 'Set event location',
       },
       {
         name: 'Update',
@@ -326,116 +314,5 @@ export const eventFields: INodeProperties[] = [
         description: 'New end date for the cloned event',
       },
     ],
-  },
-
-  // ─── Set Location ─────────────────────────────────────────────────────────
-  {
-    displayName: 'Event ID',
-    name: 'eventId',
-    type: 'string',
-    required: true,
-    default: '',
-    description: 'The ID of the event to set the location for',
-    displayOptions: {
-      show: {
-        resource: ['event'],
-        operation: ['setLocation'],
-      },
-    },
-  },
-  {
-    displayName: 'Location Name',
-    name: 'locationName',
-    type: 'string',
-    required: true,
-    default: '',
-    description: 'The name of the venue or location',
-    displayOptions: {
-      show: {
-        resource: ['event'],
-        operation: ['setLocation'],
-      },
-    },
-  },
-  {
-    displayName: 'Additional Location Fields',
-    name: 'additionalFields',
-    type: 'collection',
-    placeholder: 'Add Field',
-    default: {},
-    description: 'Additional location details',
-    displayOptions: {
-      show: {
-        resource: ['event'],
-        operation: ['setLocation'],
-      },
-    },
-    options: [
-      {
-        displayName: 'Address',
-        name: 'address',
-        type: 'string',
-        default: '',
-        description: 'Street address of the venue',
-      },
-      {
-        displayName: 'City',
-        name: 'city',
-        type: 'string',
-        default: '',
-        description: 'City of the venue',
-      },
-      {
-        displayName: 'Country',
-        name: 'country',
-        type: 'string',
-        default: '',
-        description: 'Country of the venue',
-      },
-      {
-        displayName: 'Latitude',
-        name: 'lat',
-        type: 'number',
-        default: 0,
-        description: 'Latitude coordinate of the venue',
-      },
-      {
-        displayName: 'Longitude',
-        name: 'lng',
-        type: 'number',
-        default: 0,
-        description: 'Longitude coordinate of the venue',
-      },
-      {
-        displayName: 'State',
-        name: 'state',
-        type: 'string',
-        default: '',
-        description: 'State or province of the venue',
-      },
-      {
-        displayName: 'Zip',
-        name: 'zip',
-        type: 'string',
-        default: '',
-        description: 'Zip or postal code of the venue',
-      },
-    ],
-  },
-
-  // ─── Get Barcodes ────────────────────────────────────────────────────────
-  {
-    displayName: 'Event ID',
-    name: 'eventId',
-    type: 'string',
-    required: true,
-    default: '',
-    description: 'The ID of the event to get barcodes for',
-    displayOptions: {
-      show: {
-        resource: ['event'],
-        operation: ['getBarcodes'],
-      },
-    },
   },
 ];

@@ -22,10 +22,17 @@
     "cohost",
     "events",
     "trigger",
+    "webhook",
     "attendees",
     "orders",
     "registration",
+    "check-in",
+    "tickets",
+    "payments",
     "event management",
-    "cohost.vip"
+    "cohost.vip",
+    "new order",
+    "new attendee",
+    "event published"
   ]
 }

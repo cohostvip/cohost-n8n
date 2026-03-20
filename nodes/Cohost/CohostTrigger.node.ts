@@ -1,27 +1,26 @@
 import type {
-  IDataObject,
-  INodeExecutionData,
+  IHookFunctions,
+  IWebhookFunctions,
   INodeType,
   INodeTypeDescription,
-  IPollFunctions,
+  IWebhookResponseData,
 } from 'n8n-workflow';
 
-import { cohostPollApiRequest } from './GenericFunctions';
+import { cohostWebhookApiRequest } from './GenericFunctions';
 
 export class CohostTrigger implements INodeType {
   description: INodeTypeDescription = {
     displayName: 'Cohost Trigger',
     name: 'cohostTrigger',
-    icon: 'file:cohost.svg',
+    icon: 'file:cohost.png',
     group: ['trigger'],
     version: 1,
-    subtitle: '={{$parameter["resource"]}}',
+    subtitle: '={{$parameter["events"].join(", ")}}',
     description:
-      'Polls Cohost for new attendees, orders, or events and triggers workflows automatically',
+      'Starts a workflow when Cohost events occur (orders, attendees, tickets, etc.)',
     defaults: {
       name: 'Cohost Trigger',
     },
-    polling: true,
     inputs: [],
     outputs: ['main'],
     credentials: [
@@ -30,79 +29,197 @@ export class CohostTrigger implements INodeType {
         required: true,
       },
     ],
+    webhooks: [
+      {
+        name: 'default',
+        httpMethod: 'POST',
+        responseMode: 'onReceived',
+        path: 'webhook',
+      },
+    ],
     properties: [
       {
-        displayName: 'Resource',
-        name: 'resource',
-        type: 'options',
-        noDataExpression: true,
+        displayName: 'Events',
+        name: 'events',
+        type: 'multiOptions',
+        required: true,
+        default: [],
+        description: 'The events to subscribe to',
         options: [
+          // ─── Order ───────────────────────────────────────────────────
           {
-            name: 'New Attendee',
-            value: 'attendee',
-            description: 'Trigger when a new attendee registers for an event',
+            name: 'Order Created',
+            value: 'order.created',
           },
           {
-            name: 'New Order',
-            value: 'order',
-            description: 'Trigger when a new order is placed for an event',
+            name: 'Order Placed',
+            value: 'order.placed',
           },
           {
-            name: 'New Event',
-            value: 'event',
-            description: 'Trigger when a new event is created',
+            name: 'Order Updated',
+            value: 'order.updated',
+          },
+          {
+            name: 'Order Refunded',
+            value: 'order.refunded',
+          },
+          {
+            name: 'Order Confirmation Requested',
+            value: 'order.confirmation-requested',
+          },
+
+          // ─── Ticket / Offering ───────────────────────────────────────
+          {
+            name: 'Ticket Created',
+            value: 'offering.created',
+          },
+          {
+            name: 'Ticket Updated',
+            value: 'offering.updated',
+          },
+          {
+            name: 'Ticket Deleted',
+            value: 'offering.deleted',
+          },
+
+          // ─── Event ───────────────────────────────────────────────────
+          {
+            name: 'Event Created',
+            value: 'event.created',
+          },
+          {
+            name: 'Event Updated',
+            value: 'event.updated',
+          },
+          {
+            name: 'Event Published',
+            value: 'event.published',
+          },
+          {
+            name: 'Event Deleted',
+            value: 'event.deleted',
+          },
+
+          // ─── Attendee ────────────────────────────────────────────────
+          {
+            name: 'Attendee Registered',
+            value: 'attendee.created',
+          },
+          {
+            name: 'Attendee Checked In',
+            value: 'attendee.checked_in',
+          },
+          {
+            name: 'Attendee Removed',
+            value: 'attendee.deleted',
+          },
+
+          // ─── Payment ─────────────────────────────────────────────────
+          {
+            name: 'Payment Completed',
+            value: 'payment.completed',
+          },
+          {
+            name: 'Payment Failed',
+            value: 'payment.failed',
           },
         ],
-        default: 'attendee',
-        description: 'What to watch for',
       },
       {
-        displayName: 'Event ID',
-        name: 'eventId',
+        displayName: 'Event IDs',
+        name: 'eventIds',
         type: 'string',
-        required: true,
         default: '',
-        description: 'The ID of the event to watch',
-        displayOptions: {
-          show: {
-            resource: ['attendee', 'order'],
-          },
-        },
+        description:
+          'Comma-separated list of Event IDs to scope the webhook to. Leave empty to receive events for all your events.',
+        placeholder: 'e.g. evt_abc123, evt_def456',
       },
     ],
   };
 
-  async poll(this: IPollFunctions): Promise<INodeExecutionData[][] | null> {
-    const resource = this.getNodeParameter('resource') as string;
-    const webhookData = this.getWorkflowStaticData('node');
-    const now = new Date().toISOString();
-    const lastPoll = (webhookData.lastPollTime as string) || now;
+  webhookMethods = {
+    default: {
+      async checkExists(this: IHookFunctions): Promise<boolean> {
+        const webhookData = this.getWorkflowStaticData('node');
+        const webhookUrl = this.getNodeWebhookUrl('default') as string;
 
-    let endpoint: string;
-    const qs: Record<string, string | number> = { since: lastPoll };
+        if (webhookData.webhookId) {
+          try {
+            const webhook = await cohostWebhookApiRequest.call(
+              this,
+              'GET',
+              `/webhooks/${webhookData.webhookId}`,
+            );
+            if (webhook && webhook.url === webhookUrl) {
+              return true;
+            }
+          } catch {
+            // Webhook no longer exists on the API side
+          }
+          // Clean up stale reference
+          delete webhookData.webhookId;
+        }
 
-    if (resource === 'attendee') {
-      const eventId = this.getNodeParameter('eventId') as string;
-      endpoint = `/events/${eventId}/attendees`;
-    } else if (resource === 'order') {
-      const eventId = this.getNodeParameter('eventId') as string;
-      endpoint = `/events/${eventId}/orders`;
-    } else {
-      // event
-      endpoint = '/events';
-    }
+        return false;
+      },
 
-    const responseData = await cohostPollApiRequest.call(this, 'GET', endpoint, {}, qs);
+      async create(this: IHookFunctions): Promise<boolean> {
+        const webhookUrl = this.getNodeWebhookUrl('default') as string;
+        const events = this.getNodeParameter('events') as string[];
+        const eventIdsRaw = this.getNodeParameter('eventIds', '') as string;
 
-    // Update last poll time after successful request
-    webhookData.lastPollTime = now;
+        const body: Record<string, any> = {
+          url: webhookUrl,
+          events,
+        };
 
-    const items: IDataObject[] = Array.isArray(responseData) ? responseData : [];
+        if (eventIdsRaw && eventIdsRaw.trim().length > 0) {
+          body.eventIds = eventIdsRaw
+            .split(',')
+            .map((id: string) => id.trim())
+            .filter((id: string) => id.length > 0);
+        }
 
-    if (items.length === 0) {
-      return null;
-    }
+        const webhook = await cohostWebhookApiRequest.call(
+          this,
+          'POST',
+          '/webhooks',
+          body,
+        );
 
-    return [items.map((item) => ({ json: item }))];
+        const webhookData = this.getWorkflowStaticData('node');
+        webhookData.webhookId = webhook.id;
+
+        return true;
+      },
+
+      async delete(this: IHookFunctions): Promise<boolean> {
+        const webhookData = this.getWorkflowStaticData('node');
+
+        if (webhookData.webhookId) {
+          try {
+            await cohostWebhookApiRequest.call(
+              this,
+              'DELETE',
+              `/webhooks/${webhookData.webhookId}`,
+            );
+          } catch {
+            // Ignore errors during cleanup — webhook may already be gone
+          }
+          delete webhookData.webhookId;
+        }
+
+        return true;
+      },
+    },
+  };
+
+  async webhook(this: IWebhookFunctions): Promise<IWebhookResponseData> {
+    const req = this.getRequestObject();
+    const body = req.body as Record<string, any>;
+
+    return {
+      workflowData: [this.helpers.returnJsonArray(body)],
+    };
   }
 }
