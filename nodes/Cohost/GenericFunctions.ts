@@ -1,4 +1,4 @@
-import type { IExecuteFunctions, IHttpRequestMethods, IRequestOptions } from 'n8n-workflow';
+import type { IExecuteFunctions, IPollFunctions, IHttpRequestMethods, IRequestOptions } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 
 export async function cohostApiRequest(
@@ -83,4 +83,51 @@ export function removeEmpty(obj: Record<string, any>): Record<string, any> {
   return Object.fromEntries(
     Object.entries(obj).filter(([, v]) => v !== undefined && v !== '' && v !== null),
   );
+}
+
+/**
+ * API request helper for polling trigger nodes (IPollFunctions context).
+ * Always uses API Key authentication.
+ */
+export async function cohostPollApiRequest(
+  this: IPollFunctions,
+  method: IHttpRequestMethods,
+  endpoint: string,
+  body: object = {},
+  qs: Record<string, string | number> = {},
+): Promise<any> {
+  const credentials = await this.getCredentials('cohostApi');
+  const baseUrl = ((credentials.baseUrl as string) || 'https://api.cohost.vip').replace(/\/+$/, '');
+  const apiKey = credentials.apiKey as string;
+
+  const options: IRequestOptions = {
+    method,
+    qs,
+    uri: `${baseUrl}/v1${endpoint}`,
+    json: true,
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      Authorization: `Bearer ${apiKey}`,
+    },
+  };
+
+  if (Object.keys(body).length > 0) {
+    options.body = body;
+  }
+
+  const response = await this.helpers.request(options);
+
+  if (response && typeof response === 'object' && 'data' in response) {
+    if (response.status === 'error') {
+      throw new NodeOperationError(this.getNode(), response.message || 'API returned an error');
+    }
+    return response.data;
+  }
+
+  if (response?.status === 'error') {
+    throw new NodeOperationError(this.getNode(), response.message || 'API returned an error');
+  }
+
+  return response;
 }

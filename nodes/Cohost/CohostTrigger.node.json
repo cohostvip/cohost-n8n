@@ -1,5 +1,5 @@
 {
-  "node": "n8n-nodes-cohost.cohost",
+  "node": "n8n-nodes-cohost.cohostTrigger",
   "nodeVersion": "1.0",
   "codexVersion": "1.0",
   "categories": ["Marketing & Growth"],
@@ -21,16 +21,11 @@
   "alias": [
     "cohost",
     "events",
-    "tickets",
-    "ticketing",
-    "event management",
+    "trigger",
     "attendees",
+    "orders",
     "registration",
-    "check-in",
-    "rsvp",
-    "event ticketing",
-    "event analytics",
-    "cohost.vip",
-    "event platform"
+    "event management",
+    "cohost.vip"
   ]
 }

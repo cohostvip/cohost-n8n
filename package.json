@@ -3,7 +3,15 @@
   "version": "0.1.0",
   "description": "n8n community node for the Cohost event management platform",
   "keywords": [
-    "n8n-community-node-package"
+    "n8n",
+    "n8n-community-node-package",
+    "cohost",
+    "event management",
+    "ticketing",
+    "events",
+    "attendees",
+    "registration",
+    "analytics"
   ],
   "license": "MIT",
   "homepage": "https://github.com/cohostapp/n8n-nodes-cohost",
@@ -14,6 +22,9 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/cohostapp/n8n-nodes-cohost.git"
+  },
+  "bugs": {
+    "url": "https://github.com/cohostapp/n8n-nodes-cohost/issues"
   },
   "main": "index.js",
   "scripts": {
@@ -35,7 +46,8 @@
       "dist/credentials/CohostOAuth2Api.credentials.js"
     ],
     "nodes": [
-      "dist/nodes/Cohost/Cohost.node.js"
+      "dist/nodes/Cohost/Cohost.node.js",
+      "dist/nodes/Cohost/CohostTrigger.node.js"
     ]
   },
   "devDependencies": {

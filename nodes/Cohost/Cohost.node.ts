@@ -39,7 +39,7 @@ export class Cohost implements INodeType {
     group: ['transform'],
     version: 1,
     subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
-    description: 'Interact with the Cohost event management platform',
+    description: 'Manage events, tickets, attendees, and analytics on the Cohost event management platform',
     defaults: {
       name: 'Cohost',
     },
