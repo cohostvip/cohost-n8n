@@ -1,4 +1,5 @@
 import type { ICredentialType, INodeProperties } from 'n8n-workflow';
+import { API_BASE } from '../nodes/Cohost/consts';
 
 export class CohostOAuth2Api implements ICredentialType {
   name = 'cohostOAuth2Api';
@@ -20,29 +21,22 @@ export class CohostOAuth2Api implements ICredentialType {
       displayName: 'Authorization URL',
       name: 'authUrl',
       type: 'string',
-      default: 'https://api.cohost.vip/oauth/authorize',
+      default: `${API_BASE}/oauth/authorize`,
       required: true,
     },
     {
       displayName: 'Access Token URL',
       name: 'accessTokenUrl',
       type: 'string',
-      default: 'https://api.cohost.vip/oauth/token',
+      default: `${API_BASE}/oauth/token`,
       required: true,
     },
     {
       displayName: 'Scope',
       name: 'scope',
       type: 'string',
-      default: 'events:read events:write orders:read orders:write tickets:read',
+      default: 'events:read orders:read',
       description: 'Space-separated list of OAuth2 scopes to request',
-    },
-    {
-      displayName: 'Auth URI Query Parameters',
-      name: 'authQueryParameters',
-      type: 'string',
-      default: '',
-      description: 'Additional query parameters to include in the authorization URI',
     },
     {
       displayName: 'Authentication',

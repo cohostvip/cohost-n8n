@@ -1,13 +1,7 @@
-/**
- * Test helpers for mocking n8n IExecuteFunctions context.
- */
+import { API_BASE } from '../consts';
 
 export type MockCallArgs = { method: string; endpoint: string; body?: object; qs?: object };
 
-/**
- * Creates a minimal mock of IExecuteFunctions used by cohostApiRequest and the node.
- * Records all calls to `cohostApiRequest` via the `mockRequest` spy.
- */
 export function createMockExecuteFunctions(
   params: Record<string, any>,
   mockResponse: any = { id: 'test-id' },
@@ -26,13 +20,13 @@ export function createMockExecuteFunctions(
     getNode: () => ({ name: 'Cohost', typeVersion: 1 }),
     getCredentials: async (_credName: string) => ({
       apiKey: 'test-api-key',
-      baseUrl: 'https://api.cohost.vip',
+      baseUrl: API_BASE,
     }),
     helpers: {
       request: async (options: any) => {
         capturedCalls.push({
           method: options.method,
-          endpoint: options.uri.replace('https://api.cohost.vip/v1', ''),
+          endpoint: options.uri.replace(API_BASE, ''),
           body: options.body,
           qs: options.qs,
         });
@@ -41,7 +35,7 @@ export function createMockExecuteFunctions(
       httpRequestWithAuthentication: async (_credName: string, options: any) => {
         capturedCalls.push({
           method: options.method,
-          endpoint: options.url.replace('https://api.cohost.vip/v1', ''),
+          endpoint: options.url.replace(API_BASE, ''),
           body: options.body,
           qs: options.qs,
         });

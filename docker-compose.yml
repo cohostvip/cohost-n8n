@@ -1,0 +1,27 @@
+services:
+  builder:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./nodes:/app/nodes
+      - ./credentials:/app/credentials
+      - ./tsconfig.json:/app/tsconfig.json
+      - build_output:/app/dist
+
+  n8n:
+    image: n8nio/n8n:latest
+    ports:
+      - "5678:5678"
+    depends_on:
+      - builder
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - build_output:/home/node/.n8n/custom/node_modules/n8n-nodes-cohost/dist
+      - ./package.json:/home/node/.n8n/custom/node_modules/n8n-nodes-cohost/package.json
+    environment:
+      - N8N_CUSTOM_EXTENSIONS=/home/node/.n8n/custom
+
+volumes:
+  n8n_data:
+  build_output:

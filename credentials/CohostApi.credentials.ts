@@ -1,4 +1,5 @@
 import type { ICredentialType, INodeProperties } from 'n8n-workflow';
+import { BASE_URL } from '../nodes/Cohost/consts';
 
 export class CohostApi implements ICredentialType {
   name = 'cohostApi';
@@ -23,7 +24,7 @@ export class CohostApi implements ICredentialType {
       displayName: 'Base URL',
       name: 'baseUrl',
       type: 'string',
-      default: 'https://api.cohost.vip',
+      default: BASE_URL,
       description: 'The base URL for the Cohost API. Change only for self-hosted instances.',
     },
   ];

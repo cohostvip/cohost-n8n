@@ -1,5 +1,6 @@
 import type { IExecuteFunctions, IHookFunctions, IWebhookFunctions, IPollFunctions, IHttpRequestMethods, IRequestOptions } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
+import { API_BASE } from './consts';
 
 export async function cohostApiRequest(
   this: IExecuteFunctions,
@@ -28,9 +29,7 @@ export async function cohostApiRequest(
   let response: any;
 
   if (authentication === 'oAuth2') {
-    const credentials = await this.getCredentials('cohostOAuth2Api');
-    const baseUrl = ((credentials.baseUrl as string) || 'https://api.cohost.vip').replace(/\/+$/, '');
-    options.uri = `${baseUrl}/v1${endpoint}`;
+    options.uri = `${API_BASE}${endpoint}`;
     response = await this.helpers.httpRequestWithAuthentication.call(
       this,
       'cohostOAuth2Api',
@@ -44,12 +43,10 @@ export async function cohostApiRequest(
       },
     );
   } else {
-    // apiKey authentication
     const credentials = await this.getCredentials('cohostApi');
-    const baseUrl = ((credentials.baseUrl as string) || 'https://api.cohost.vip').replace(/\/+$/, '');
     const apiKey = credentials.apiKey as string;
 
-    options.uri = `${baseUrl}/v1${endpoint}`;
+    options.uri = `${API_BASE}${endpoint}`;
     options.headers = {
       ...options.headers,
       Authorization: `Bearer ${apiKey}`,
@@ -60,14 +57,12 @@ export async function cohostApiRequest(
 
   // Unwrap the { status: "ok", data: ... } envelope
   if (response && typeof response === 'object' && 'data' in response) {
-    // Check for API-level errors before returning
     if (response.status === 'error') {
       throw new NodeOperationError(this.getNode(), response.message || 'API returned an error');
     }
     return response.data;
   }
 
-  // Check for top-level API error responses without a data field
   if (response?.status === 'error') {
     throw new NodeOperationError(this.getNode(), response.message || 'API returned an error');
   }
@@ -97,13 +92,12 @@ export async function cohostWebhookApiRequest(
   qs: Record<string, string | number> = {},
 ): Promise<any> {
   const credentials = await this.getCredentials('cohostApi');
-  const baseUrl = ((credentials.baseUrl as string) || 'https://api.cohost.vip').replace(/\/+$/, '');
   const apiKey = credentials.apiKey as string;
 
   const options: IRequestOptions = {
     method,
     qs,
-    uri: `${baseUrl}/v1${endpoint}`,
+    uri: `${API_BASE}${endpoint}`,
     json: true,
     headers: {
       'Content-Type': 'application/json',

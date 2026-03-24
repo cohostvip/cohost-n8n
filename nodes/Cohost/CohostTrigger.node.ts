@@ -46,42 +46,6 @@ export class CohostTrigger implements INodeType {
         default: [],
         description: 'The events to subscribe to',
         options: [
-          // ─── Order ───────────────────────────────────────────────────
-          {
-            name: 'Order Created',
-            value: 'order.created',
-          },
-          {
-            name: 'Order Placed',
-            value: 'order.placed',
-          },
-          {
-            name: 'Order Updated',
-            value: 'order.updated',
-          },
-          {
-            name: 'Order Refunded',
-            value: 'order.refunded',
-          },
-          {
-            name: 'Order Confirmation Requested',
-            value: 'order.confirmation-requested',
-          },
-
-          // ─── Ticket / Offering ───────────────────────────────────────
-          {
-            name: 'Ticket Created',
-            value: 'offering.created',
-          },
-          {
-            name: 'Ticket Updated',
-            value: 'offering.updated',
-          },
-          {
-            name: 'Ticket Deleted',
-            value: 'offering.deleted',
-          },
-
           // ─── Event ───────────────────────────────────────────────────
           {
             name: 'Event Created',
@@ -100,28 +64,22 @@ export class CohostTrigger implements INodeType {
             value: 'event.deleted',
           },
 
-          // ─── Attendee ────────────────────────────────────────────────
+          // ─── Order ───────────────────────────────────────────────────
           {
-            name: 'Attendee Registered',
-            value: 'attendee.created',
+            name: 'Order Created',
+            value: 'order.created',
           },
           {
-            name: 'Attendee Checked In',
-            value: 'attendee.checked_in',
+            name: 'Order Placed',
+            value: 'order.placed',
           },
           {
-            name: 'Attendee Removed',
-            value: 'attendee.deleted',
-          },
-
-          // ─── Payment ─────────────────────────────────────────────────
-          {
-            name: 'Payment Completed',
-            value: 'payment.completed',
+            name: 'Order Updated',
+            value: 'order.updated',
           },
           {
-            name: 'Payment Failed',
-            value: 'payment.failed',
+            name: 'Order Refunded',
+            value: 'order.refunded',
           },
         ],
       },

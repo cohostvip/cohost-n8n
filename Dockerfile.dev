@@ -1,0 +1,14 @@
+FROM node:20-slim
+
+WORKDIR /app
+
+RUN npm install -g nodemon
+
+COPY package.json package-lock.json ./
+RUN npm install
+
+COPY tsconfig.json ./
+COPY nodes/ ./nodes/
+COPY credentials/ ./credentials/
+
+CMD ["nodemon", "--watch", "nodes", "--watch", "credentials", "--ext", "ts,json,png", "--exec", "npm run build"]
