@@ -6,7 +6,7 @@ export class CohostApi implements ICredentialType {
 
   displayName = 'Cohost API';
 
-  documentationUrl = 'https://docs.cohost.vip/api';
+  documentationUrl = 'https://docs.cohost.vip/authentication/api-keys';
 
   properties: INodeProperties[] = [
     {

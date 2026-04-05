@@ -26,43 +26,10 @@ export class Cohost implements INodeType {
     credentials: [
       {
         name: 'cohostApi',
-        required: false,
-        displayOptions: {
-          show: {
-            authentication: ['apiKey'],
-          },
-        },
-      },
-      {
-        name: 'cohostOAuth2Api',
-        required: false,
-        displayOptions: {
-          show: {
-            authentication: ['oAuth2'],
-          },
-        },
+        required: true,
       },
     ],
     properties: [
-      // ─── Authentication ───────────────────────────────────────────────────
-      {
-        displayName: 'Authentication',
-        name: 'authentication',
-        type: 'options',
-        options: [
-          {
-            name: 'API Key',
-            value: 'apiKey',
-          },
-          {
-            name: 'OAuth2',
-            value: 'oAuth2',
-          },
-        ],
-        default: 'apiKey',
-        description: 'The authentication method to use',
-      },
-
       // ─── Resource ─────────────────────────────────────────────────────────
       {
         displayName: 'Resource',
