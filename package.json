@@ -14,17 +14,17 @@
     "webhooks"
   ],
   "license": "MIT",
-  "homepage": "https://github.com/cohostapp/n8n-nodes-cohost",
+  "homepage": "https://github.com/cohostvip/cohost-n8n#readme",
   "author": {
     "name": "Cohost",
     "email": "dev@cohost.vip"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/cohostapp/n8n-nodes-cohost.git"
+    "url": "git+https://github.com/cohostvip/cohost-n8n.git"
   },
   "bugs": {
-    "url": "https://github.com/cohostapp/n8n-nodes-cohost/issues"
+    "url": "https://github.com/cohostvip/cohost-n8n/issues"
   },
   "main": "index.js",
   "scripts": {
